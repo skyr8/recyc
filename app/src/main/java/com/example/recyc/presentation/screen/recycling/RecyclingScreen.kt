@@ -69,7 +69,7 @@ fun RecyclingScreen(
                             .background(MaterialTheme.colorScheme.surface)
                             .padding(16.dp)
                     ) {
-                        Row() {
+                        Row {
                             Label(
                                 modifier = Modifier.weight(1f),
                                 text = "TODAY",
@@ -97,7 +97,8 @@ fun RecyclingScreen(
                                             painter = painterResource(it.toIcon()),
                                             contentDescription = null,
                                             modifier = Modifier.size(42.dp),
-                                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.primary)
+                                            colorFilter = ColorFilter
+                                                .tint(MaterialTheme.colorScheme.onPrimaryContainer)
                                         )
                                         Margin(margin = 8)
                                     }

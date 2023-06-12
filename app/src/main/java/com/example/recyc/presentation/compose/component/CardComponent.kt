@@ -31,7 +31,7 @@ fun RecyclingCard(
     val cardColor =
         if (isCurrentDay) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
     val iconColor =
-        if (isCurrentDay) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+        if (isCurrentDay) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.outline
 
     val typeColor =
         if (isCurrentDay) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface
