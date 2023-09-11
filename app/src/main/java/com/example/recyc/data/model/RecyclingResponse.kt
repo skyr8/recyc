@@ -16,6 +16,7 @@ enum class DayEnum {
     TUESDAY,
     WEDNESDAY,
     THURSDAY,
+    FRIDAY,
     SATURDAY,
     SUNDAY
 }
@@ -25,7 +26,6 @@ enum class RecyclingType {
     GLASS,
     PAPER,
     WASTE,
-    WET
+    ORGANIC,
+    NONE
 }
-
-

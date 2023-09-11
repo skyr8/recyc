@@ -13,7 +13,6 @@ object CustomGlanceStateDefinition : GlanceStateDefinition<Preferences> {
     }
 
     override fun getLocation(context: Context, fileKey: String): File {
-        // Note: The Datastore Preference file resides is in the context.applicationContext.filesDir + "datastore/"
         return File(context.applicationContext.filesDir, "datastore/$fileName")
     }
 

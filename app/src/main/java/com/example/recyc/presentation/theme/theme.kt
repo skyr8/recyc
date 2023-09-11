@@ -14,10 +14,6 @@ fun AppTheme(
     content: @Composable () -> Unit
 ) {
     val systemUiController = rememberSystemUiController()
-
-    /**
-     * Dynamic Colors are supported on API level 31 and above
-     * */
     val dynamicColor = isDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val colorScheme = when {
         dynamicColor && isDarkTheme -> {
@@ -32,7 +28,6 @@ fun AppTheme(
         else -> LightThemeColors
     }
 
-    // Make use of Material3 imports
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography(),
@@ -44,9 +39,5 @@ fun AppTheme(
     systemUiController.setSystemBarsColor(color = systemClor)
 }
 
-private val LightThemeColors = lightColorScheme(
-//    primary = md_theme_light_primary, // and 20+ more color schemes
-)
-private val DarkThemeColors = lightColorScheme(
-//    primary = md_theme_light_primary, // and 20+ more color schemes
-)
+private val LightThemeColors = lightColorScheme()
+private val DarkThemeColors = darkColorScheme()

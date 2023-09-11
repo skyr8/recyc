@@ -80,7 +80,7 @@ fun RecyclingCard(
 private fun RecyclingCardPreview() {
     val data = RecyclingDayModel(
         hour = "20 - 22",
-        type = listOf(RecyclingType.WET),
+        type = listOf(RecyclingType.ORGANIC),
         day = DayEnum.MONDAY,
         id = 0
     )
@@ -92,7 +92,7 @@ private fun RecyclingCardPreview() {
 private fun RecyclingCardCurrentDayPreview() {
     val data = RecyclingDayModel(
         hour = "20 - 22",
-        type = listOf(RecyclingType.WET, RecyclingType.GLASS),
+        type = listOf(RecyclingType.ORGANIC, RecyclingType.GLASS),
         day = DayEnum.MONDAY,
         id = 0
     )

@@ -30,12 +30,10 @@ class RunPeriodicWorkUseCase @Inject constructor(
     }
 
     private fun buildRequest(): PeriodicWorkRequest {
-        // 1 day
         return PeriodicWorkRequestBuilder<DailyReadWorkerTask>(1, TimeUnit.HOURS)
             .addTag("daily_read_worker_tag")
             .setConstraints(
                 Constraints.Builder()
-                    // Network required
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )

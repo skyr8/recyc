@@ -20,5 +20,6 @@ fun RecyclingType.toIcon() = when (this) {
     RecyclingType.GLASS -> R.drawable.glass_ic
     RecyclingType.PAPER -> R.drawable.paper_ic
     RecyclingType.WASTE -> R.drawable.waste_ic
-    RecyclingType.WET -> R.drawable.wet_ic
+    RecyclingType.ORGANIC -> R.drawable.wet_ic
+    else -> R.drawable.ic_launcher_foreground
 }
