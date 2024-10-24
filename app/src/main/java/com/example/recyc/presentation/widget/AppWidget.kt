@@ -3,7 +3,6 @@ package com.example.recyc.presentation.widget
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,14 +22,15 @@ import androidx.glance.appwidget.cornerRadius
 import androidx.glance.background
 import androidx.glance.currentState
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.absolutePadding
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
-import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
@@ -46,8 +46,9 @@ class AppWidget : GlanceAppWidget() {
 
     companion object {
         private val SMALL_SQUARE = DpSize(80.dp, 40.dp)
-        private val HORIZONTAL_RECTANGLE = DpSize(160.dp, 80.dp)
+        private val HORIZONTAL_RECTANGLE = DpSize(120.dp, 90.dp)
         private val BIG_SQUARE = DpSize(160.dp, 160.dp)
+        val radius = 32.dp
     }
 
     override val sizeMode: SizeMode = SizeMode.Responsive(
@@ -82,7 +83,8 @@ class AppWidget : GlanceAppWidget() {
                         recyclingDayModel = recyclingDayModel,
                         modifier = GlanceModifier.clickable(
                             onClick = actionStartActivity<MainActivity>()
-                        )
+                        ),
+                        context = context
                     )
                 }
 
@@ -110,7 +112,7 @@ private fun LargeWidget(
         modifier = modifier
             .fillMaxSize()
             .background(R.color.surface)
-            .padding(16.dp).cornerRadius(16.dp),
+            .padding(16.dp).cornerRadius(AppWidget.radius),
     ) {
         Text(
             text = recyclingDayModel?.type?.joinToString("•").orEmpty(), // Header
@@ -161,7 +163,7 @@ private fun SmallWidget(
         modifier = modifier
             .fillMaxSize()
             .background(R.color.surface)
-            .padding(16.dp).cornerRadius(16.dp),
+            .padding(16.dp).cornerRadius(AppWidget.radius),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalAlignment = Alignment.CenterVertically,
 
@@ -183,38 +185,61 @@ private fun SmallWidget(
     }
 }
 
-
 @Composable
 private fun MediumWidget(
     recyclingDayModel: RecyclingDayModel?,
-    modifier: GlanceModifier = GlanceModifier
+    modifier: GlanceModifier = GlanceModifier,
+    context: Context,
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(R.color.surface)
-            .padding(16.dp).cornerRadius(16.dp)
+            .padding(start = 16.dp)
+            .padding(vertical = 16.dp)
+            .padding(end = 8.dp)
+            .cornerRadius(AppWidget.radius)
     ) {
-
         Text(
-            text = recyclingDayModel?.type?.joinToString(" • ").orEmpty(), // Header
+            text = recyclingDayModel?.type?.joinToString("-").orEmpty(),
+            maxLines = 1,
             style = TextStyle(
                 color = ColorProvider(R.color.text),
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             ),
+            modifier = GlanceModifier
+                .defaultWeight()
+                .fillMaxWidth()
         )
         Spacer(modifier = GlanceModifier.defaultWeight())
-        Text(
-            text = recyclingDayModel?.hour.orEmpty(), // Header
-            style = TextStyle(
-                color = ColorProvider(R.color.text_secondary),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.End
-            ),
-            maxLines = 1,
-            modifier = GlanceModifier.fillMaxWidth()
-        )
+        Row(horizontalAlignment = Alignment.End, modifier = GlanceModifier.fillMaxWidth()) {
+            recyclingDayModel?.type?.forEachIndexed { index, type ->
+                val d = context.resources.getDrawable(type.toIcon(), null)
+                val color = context.getColor(R.color.primary)
+                d.setTint(color)
+                val bm = d.toBitmap(width = 128, height = 128)
+                val ip = ImageProvider(bm)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = GlanceModifier.size(28.dp).cornerRadius(28.dp)
+                        .background(R.color.text_secondary),
+                ) {
+                    Box(
+                        modifier = GlanceModifier
+                            .background(R.color.accent_600)
+                            .size(24.dp).cornerRadius(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            provider = ip,
+                            contentDescription = null,
+                            modifier = GlanceModifier.size(21.dp),
+                        )
+                    }
+                }
+                Spacer(modifier = GlanceModifier.size(1.dp))
+            }
+        }
     }
 }

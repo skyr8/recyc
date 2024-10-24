@@ -1,12 +1,17 @@
 package com.example.recyc.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.example.recyc.data.repository.RecyclerRepositoryImpl
 import com.example.recyc.domain.RecyclerClient
 import com.example.recyc.domain.RecyclerRepository
+import com.example.recyc.domain.usecase.PreferenceUseCase
+import com.example.recyc.domain.usecase.PreferenceUseCaseImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -33,11 +38,22 @@ abstract class AppModule {
             .client(OkHttpClient.Builder().build())
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+
+        @Provides
+        @Singleton
+        fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+            return context.getSharedPreferences("recycler_preferences", Context.MODE_PRIVATE)
+        }
     }
 
     @Singleton
     @Binds
     abstract fun RecyclerRepositoryImpl.bindRecyclerRepository():
         RecyclerRepository
+
+    @Singleton
+    @Binds
+    abstract fun PreferenceUseCaseImpl.bindPreference():
+            PreferenceUseCase
 
 }

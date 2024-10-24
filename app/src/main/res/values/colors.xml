@@ -6,5 +6,6 @@
     <color name="text" tools:targetApi="s">@android:color/system_accent1_10</color>
     <color name="text_secondary" tools:targetApi="s">@android:color/system_accent2_50</color>
     <color name="secondary_600" tools:targetApi="s">@android:color/system_accent2_600</color>
+    <color name="accent_600" tools:targetApi="s">@android:color/system_accent3_600</color>
     <color name="main_dark_800" tools:targetApi="s">@android:color/system_accent1_800</color>
 </resources>

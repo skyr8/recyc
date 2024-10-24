@@ -27,16 +27,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.recyc.data.model.DayEnum
 import com.example.recyc.domain.mapper.toIcon
+import com.example.recyc.domain.model.RecyclingDayModel
 import com.example.recyc.presentation.compose.component.Label
 import com.example.recyc.presentation.compose.component.Margin
 import com.example.recyc.presentation.compose.component.RecyclingCard
+import com.example.recyc.presentation.theme.AppTheme
 import com.example.recyc.presentation.widget.updateWidget
 import com.google.gson.Gson
 
 @Composable
 fun RecyclingScreen(
     viewModel: RecyclingViewModel? = hiltViewModel(),
+    onItemClick: (Int) -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -52,6 +56,23 @@ fun RecyclingScreen(
         updateWidget(recyclerJson, context)
     }
 
+    RecyclingScreenContent(
+        days = days,
+        currentDay = currentDay,
+        isLoading = isLoading,
+        currentModel = currentModel,
+        onItemClick = onItemClick
+    )
+}
+
+@Composable
+fun RecyclingScreenContent(
+    days: List<RecyclingDayModel>,
+    currentDay: DayEnum?,
+    isLoading: Boolean,
+    currentModel: RecyclingDayModel?,
+    onItemClick: (Int) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -113,20 +134,68 @@ fun RecyclingScreen(
                     modifier = Modifier.padding(16.dp),
                     content = {
                         items(days) {
-                            Log.i(">>>current day", currentDay?.name.orEmpty())
-                            Log.i(">>> day", it.day.name)
-                            RecyclingCard(recyclingDay = it, isCurrentDay = currentDay == it.day)
+                            RecyclingCard(recyclingDay = it, isCurrentDay = currentDay == it.day, onClick = onItemClick)
                             Margin(margin = 8)
                         }
                     })
             }
         }
     }
-
 }
 
 @Composable
 @Preview
 private fun RecyclingScreenPreview() {
-    RecyclingScreen(viewModel = null)
+    AppTheme(isDynamicColor = true) {
+        RecyclingScreenContent(
+            days = listOf(
+                RecyclingDayModel(
+                    id = 1,
+                    day = DayEnum.MONDAY,
+                    type = listOf(),
+                    hour = "10:00"
+                ),
+                RecyclingDayModel(
+                    id = 2,
+                    day = DayEnum.TUESDAY,
+                    type = listOf(),
+                    hour = "10:00"
+                ),
+                RecyclingDayModel(
+                    id = 3,
+                    day = DayEnum.WEDNESDAY,
+                    type = listOf(),
+                    hour = "10:00"
+                ),
+                RecyclingDayModel(
+                    id = 4,
+                    day = DayEnum.THURSDAY,
+                    type = listOf(),
+                    hour = "10:00"
+                ),
+                RecyclingDayModel(
+                    id = 5,
+                    day = DayEnum.FRIDAY,
+                    type = listOf(),
+                    hour = "10:00"
+                ),
+                RecyclingDayModel(
+                    id = 6,
+                    day = DayEnum.SATURDAY,
+                    type = listOf(),
+                    hour = "10:00"
+                ),
+                RecyclingDayModel(
+                    id = 7,
+                    day = DayEnum.SUNDAY,
+                    type = listOf(),
+                    hour = "10:00"
+                )
+            ),
+            currentDay = DayEnum.MONDAY,
+            isLoading = false,
+            currentModel = null,
+            onItemClick = {}
+        )
+    }
 }
