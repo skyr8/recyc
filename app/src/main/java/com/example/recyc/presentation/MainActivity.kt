@@ -19,7 +19,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.navigation.compose.rememberNavController
 import com.example.recyc.domain.usecase.RunPeriodicWorkUseCase
 import com.example.recyc.presentation.navigation.Navigator
-import com.example.recyc.presentation.screen.recycling.RecyclingScreen
 import com.example.recyc.presentation.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
