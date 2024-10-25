@@ -1,6 +1,7 @@
 package com.example.recyc.domain.usecase
 
 import android.content.SharedPreferences
+import com.example.recyc.data.model.DayEnum
 import com.example.recyc.domain.model.RecyclingDayModel
 import com.google.gson.Gson
 import javax.inject.Inject
@@ -10,6 +11,7 @@ class PreferenceUseCaseImpl @Inject constructor(private val preferences: SharedP
     PreferenceUseCase {
         companion object{
             const val LAST_NOTIFICATION_DATE = "last_notification_date"
+            const val DAY_CONFIRMATION = "day_confirmation"
         }
     override fun getRecyclerDay(dayId: Int): RecyclingDayModel? {
         preferences.getString(dayId.toString(), null)?.let {
@@ -29,6 +31,18 @@ class PreferenceUseCaseImpl @Inject constructor(private val preferences: SharedP
 
     override fun setLastNotificationDate(date: String) {
         preferences.edit().putString(LAST_NOTIFICATION_DATE, date).apply()
+    }
+
+    override fun getDayConfirmation(currentDay: DayEnum): Boolean {
+        val currentDayPref = preferences.getString(DAY_CONFIRMATION, "")
+        return currentDayPref == currentDay.name
+    }
+
+    override suspend fun setDayConfirmation(date: String) {
+        DayEnum.values().forEach {
+            preferences.edit().remove(it.name).apply()
+        }
+        preferences.edit().putString(DAY_CONFIRMATION, date).apply()
     }
 
 }

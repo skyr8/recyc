@@ -1,5 +1,8 @@
 package com.example.recyc.di
 
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.recyc.data.repository.RecyclerRepositoryImpl
@@ -43,6 +46,24 @@ abstract class AppModule {
         @Singleton
         fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
             return context.getSharedPreferences("recycler_preferences", Context.MODE_PRIVATE)
+        }
+
+        @Provides
+        @Singleton
+        fun provideNotificationManager(@ApplicationContext context: Context): NotificationManager {
+            return context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        }
+
+        @Provides
+        @Singleton
+        fun provideGeofenceNotificationChannel(): NotificationChannel {
+            return NotificationChannel(
+                "geofence_channel",
+                "Geofence Service Channel",
+                NotificationManager.IMPORTANCE_MAX
+            ).apply {
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
         }
     }
 
