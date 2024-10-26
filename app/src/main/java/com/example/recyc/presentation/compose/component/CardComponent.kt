@@ -9,18 +9,27 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -37,7 +46,8 @@ import com.example.recyc.domain.model.RecyclingDayModel
 fun RecyclingCard(
     recyclingDay: RecyclingDayModel,
     isCurrentDay: Boolean = false,
-    onClick: (Int) -> Unit = {}
+    onClick: (Int) -> Unit = {},
+    isConfirmed: Boolean = false,
 ) {
     val cardColor =
         if (isCurrentDay) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
@@ -98,7 +108,33 @@ fun RecyclingCard(
                     }
                 }
             }
-            Label(text = recyclingDay.hour)
+            Column(horizontalAlignment = Alignment.End) {
+                AnimatedContent(targetState = isConfirmed) {
+                    if (isConfirmed) {
+                        Column(
+                            modifier = Modifier.height(38.dp),
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Box(
+                                modifier = Modifier.border(
+                                    1.dp,
+                                    Color.Green,
+                                    RoundedCornerShape(50)
+                                )
+                            ) {
+                                Icon(
+                                    modifier = Modifier.padding(1.dp),
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = Color.Green
+                                )
+                            }
+                        }
+                    } else {
+                        Label(text = recyclingDay.hour)
+                    }
+                }
+            }
         }
     }
 }
@@ -122,7 +158,7 @@ private fun RecyclingCardCurrentDayPreview() {
         hour = "20 - 22",
         type = listOf(RecyclingType.ORGANIC, RecyclingType.GLASS),
         day = DayEnum.MONDAY,
-        id = 0
+        id = 0,
     )
-    RecyclingCard(recyclingDay = data, isCurrentDay = true)
+    RecyclingCard(recyclingDay = data, isCurrentDay = true, isConfirmed = true)
 }

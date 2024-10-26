@@ -9,7 +9,10 @@ interface PreferenceUseCase {
     fun setRecyclerDay(dayId: Int, recyclingDayModel: RecyclingDayModel)
     fun getLastNotificationDate(): String
     fun setLastNotificationDate(date: String)
-    fun getDayConfirmation(currentDay:DayEnum): Boolean
+    fun isCurrentDayDone(currentDay:DayEnum?): Boolean
+    fun getLastDayDone(): DayEnum
     suspend fun setDayConfirmation(date: String)
-
+    suspend fun clearConfirmationDay()
+    fun skipDay(currentDay:DayEnum?)
+    fun isDaySkipped(currentDay:DayEnum?): Boolean
 }

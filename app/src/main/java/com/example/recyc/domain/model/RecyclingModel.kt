@@ -8,7 +8,8 @@ data class RecyclingDayModel(
     val id: Int,
     val day: DayEnum,
     val type: List<RecyclingType>,
-    val hour: String
+    val hour: String,
+    val isDone: Boolean = false,
 ):Serializable
 
 

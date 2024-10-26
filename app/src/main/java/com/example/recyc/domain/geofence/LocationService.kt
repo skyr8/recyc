@@ -3,7 +3,6 @@ package com.example.recyc.domain.geofence
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -12,11 +11,12 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.example.recyc.R
-import com.example.recyc.domain.mapper.toIcon
+import com.example.recyc.domain.usecase.GetCurrentDayUseCase
 import com.example.recyc.domain.usecase.GetCurrentRecyclerDayUseCase
 import com.example.recyc.domain.usecase.PreferenceUseCase
+import com.example.recyc.utils.isOneHourBefore
+import com.example.recyc.utils.showNotification
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.Granularity
@@ -39,6 +39,7 @@ class LocationService : Service() {
     private val homeLatitude = 38.121020
     private val homeLongitude = 13.355050
     private val homeRadius = 50.0f
+    private val maxDistance = 1000.0f
     private var lastNotificationTime: Long = 0
 
     @Inject
@@ -46,6 +47,9 @@ class LocationService : Service() {
 
     @Inject
     lateinit var preferenceUseCase: PreferenceUseCase
+
+    @Inject
+    lateinit var currentDayUseCase: GetCurrentDayUseCase
 
     override fun onCreate() {
         super.onCreate()
@@ -116,6 +120,7 @@ class LocationService : Service() {
     }
 
     private fun checkUserDistanceFromHome(location: Location) {
+        if(preferenceUseCase.isDaySkipped(currentDayUseCase())) return
         Log.d("LOCATION_SERVICE:::", "checkUserDistanceFromHome called with location: $location")
         val homeLocation = Location("home").apply {
             latitude = homeLatitude
@@ -124,7 +129,7 @@ class LocationService : Service() {
 
         val distance = location.distanceTo(homeLocation)
         Log.d("LOCATION_SERVICE:::", "Distance from home: $distance meters")
-        if (distance > homeRadius) {
+        if ((distance > homeRadius) && distance < maxDistance) {
             Log.d("LOCATION_SERVICE:::", "User is outside the home radius")
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastNotificationTime >= 3600000) { // 1 hour in milliseconds
@@ -141,7 +146,9 @@ class LocationService : Service() {
     private fun sendNotification() {
         Log.d("LOCATION_SERVICE:::", "sendNotification called")
         CoroutineScope(Dispatchers.Default).launch {
-            sendNotification(this@LocationService)
+            if(isOneHourBefore(getRecyclerUseCase()?.hour)){
+                sendNotification(this@LocationService)
+            }
         }
     }
 
@@ -158,43 +165,7 @@ class LocationService : Service() {
 
     private suspend fun sendNotification(context: Context) {
         val dayModel = getRecyclerUseCase()
+        dayModel?.let { context.showNotification(it) }
         Log.d("LOCATION_SERVICE:::", "sendNotification (context) called")
-        val channelId = "geofence_channel"
-        val notificationId = 2
-
-        val confirmIntent = Intent(context, GeofenceActionReceiver::class.java).apply {
-            action = "com.example.recyc.ACTION_CONFIRM_DAY"
-            putExtra("date", dayModel?.day?.name)
-            putExtra("notificationId", notificationId)
-        }
-
-        val confirmPendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            confirmIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        dayModel?.type?.first()?.toIcon()?.let { icon ->
-            val builder = NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(icon)
-                .setContentTitle(context.getString(R.string.app_name))
-                .setContentText("Do you recycle ${dayModel.type.joinToString(", ")} today?")
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setVibrate(longArrayOf(0, 500, 1000))
-                .setDefaults(Notification.DEFAULT_ALL)
-                .setCategory(NotificationCompat.CATEGORY_REMINDER)
-                .setAutoCancel(true)
-                .addAction(
-                    R.drawable.ic_launcher_foreground,
-                    "Yes",
-                    confirmPendingIntent
-                )
-
-            val notification = builder.build()
-            with(NotificationManagerCompat.from(context)) {
-                notify(notificationId, notification)
-            }
-        }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.recyc.presentation.screen.recycling
+package com.example.recyc.presentation.screen.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.recyc.SharedViewModel
 import com.example.recyc.data.model.DayEnum
 import com.example.recyc.domain.mapper.toIcon
 import com.example.recyc.domain.model.RecyclingDayModel
@@ -37,21 +38,28 @@ import com.example.recyc.presentation.widget.updateWidget
 import com.google.gson.Gson
 
 @Composable
-fun RecyclingScreen(
-    viewModel: RecyclingViewModel? = hiltViewModel(),
+fun HomeScreen(
+    viewModel: HomeViewModel? = hiltViewModel(),
+    sharedViewModel: SharedViewModel,
     onItemClick: (Int) -> Unit = {}
 ) {
     val context = LocalContext.current
 
     val recyclingState = viewModel?.recyclingDays?.observeAsState()?.value
+    val sharedState = sharedViewModel.confirmationState.observeAsState().value
+
     val days = recyclingState?.recyclingDays ?: emptyList()
     val currentDay = recyclingState?.currentDay
     val isLoading = recyclingState?.isLoading ?: true
+    val isCurrentDayConfirmed = recyclingState?.isCurrentDayConfirmed ?: false
 
     val currentModel = days.find { it.day == currentDay }
+    if (sharedState == true) {
+        viewModel?.refresh()
+    }
 
     LaunchedEffect(currentModel?.id) {
-        val recyclerJson = Gson().toJson(currentModel)
+        val recyclerJson = Gson().toJson(currentModel?.copy(isDone = isCurrentDayConfirmed))
         updateWidget(recyclerJson, context)
     }
 
@@ -60,7 +68,8 @@ fun RecyclingScreen(
         currentDay = currentDay,
         isLoading = isLoading,
         currentModel = currentModel,
-        onItemClick = onItemClick
+        onItemClick = onItemClick,
+        isCurrentDayConfirmed = isCurrentDayConfirmed,
     )
 }
 
@@ -70,7 +79,8 @@ fun RecyclingScreenContent(
     currentDay: DayEnum?,
     isLoading: Boolean,
     currentModel: RecyclingDayModel?,
-    onItemClick: (Int) -> Unit
+    onItemClick: (Int) -> Unit,
+    isCurrentDayConfirmed: Boolean,
 ) {
     Box(
         modifier = Modifier
@@ -133,7 +143,13 @@ fun RecyclingScreenContent(
                     modifier = Modifier.padding(16.dp),
                     content = {
                         items(days) {
-                            RecyclingCard(recyclingDay = it, isCurrentDay = currentDay == it.day, onClick = onItemClick)
+                            val isCurrentDay = currentDay == it.day
+                            RecyclingCard(
+                                recyclingDay = it,
+                                isCurrentDay = isCurrentDay,
+                                onClick = onItemClick,
+                                isConfirmed = isCurrentDay && isCurrentDayConfirmed
+                            )
                             Margin(margin = 8)
                         }
                     })
@@ -194,7 +210,8 @@ private fun RecyclingScreenPreview() {
             currentDay = DayEnum.MONDAY,
             isLoading = false,
             currentModel = null,
-            onItemClick = {}
+            onItemClick = {},
+            isCurrentDayConfirmed = true
         )
     }
 }

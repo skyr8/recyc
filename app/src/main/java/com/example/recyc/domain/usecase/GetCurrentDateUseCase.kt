@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 class GetCurrentDateUseCase @Inject constructor() {
     operator fun invoke(): String? {
-        val dayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.US)
+        val dayFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         val calendar = Date().time
         val currentDate = dayFormat.format(calendar)
         return currentDate

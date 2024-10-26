@@ -18,6 +18,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,8 +27,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.recyc.data.model.DayEnum
 import com.example.recyc.data.model.RecyclingType
@@ -48,14 +51,22 @@ fun DetailScreen(
     }
     val day = detailState?.recyclingDayModel
     val isLoading = detailState?.isLoading ?: false
-    DetailScreenContent(dayModel = day, isLoading = isLoading, onDayUpdate = {
-        viewModel.updateDay(it)
+    val isCurrentDay = detailState?.isCurrentDay ?: false
+    DetailScreenContent(
+        dayModel = day, isLoading = isLoading, onDayUpdate = {
+            viewModel.updateDay(it)
 
-    }, onBackPressed = onBackPressed,
+        }, onBackPressed = onBackPressed,
         onSaveChanges = {
             viewModel.saveChanges()
             onSaveChanges()
-        })
+        },
+        isDayDone = detailState?.isCurrentDayConfirmed ?: false,
+        onConfirmDayCheckChange = {
+            viewModel.updateConfirmationDay(it)
+        },
+        isCurrentDay = isCurrentDay,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +76,10 @@ fun DetailScreenContent(
     isLoading: Boolean = false,
     onDayUpdate: (List<String>) -> Unit = {},
     onBackPressed: () -> Unit = {},
-    onSaveChanges: () -> Unit = {}
+    onSaveChanges: () -> Unit = {},
+    isDayDone: Boolean = false,
+    onConfirmDayCheckChange: (Boolean) -> Unit = {},
+    isCurrentDay: Boolean = false,
 ) {
     Scaffold(topBar = {
         Row(
@@ -124,6 +138,29 @@ fun DetailScreenContent(
                             items = RecyclingType.values().map { it.name },
                             selectedItems = dayModel.type.map { it.name }) {
                             onDayUpdate(it)
+                        }
+                        Spacer(modifier = Modifier.size(24.dp))
+                        if (isCurrentDay) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                val text =
+                                    "Have you already taken out ${dayModel.type.joinToString("and ")}?"
+                                Text(
+                                    text = text,
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 18.sp
+                                    ),
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Spacer(modifier = Modifier.size(8.dp))
+                                Switch(
+                                    checked = isDayDone,
+                                    onCheckedChange = onConfirmDayCheckChange
+                                )
+                            }
                         }
                     }
                 }

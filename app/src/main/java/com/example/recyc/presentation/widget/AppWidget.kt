@@ -212,33 +212,57 @@ private fun MediumWidget(
                 .fillMaxWidth()
         )
         Spacer(modifier = GlanceModifier.defaultWeight())
-        Row(horizontalAlignment = Alignment.End, modifier = GlanceModifier.fillMaxWidth()) {
-            recyclingDayModel?.type?.forEachIndexed { index, type ->
-                val d = context.resources.getDrawable(type.toIcon(), null)
-                val color = context.getColor(R.color.primary)
-                d.setTint(color)
-                val bm = d.toBitmap(width = 128, height = 128)
-                val ip = ImageProvider(bm)
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = GlanceModifier.size(28.dp).cornerRadius(28.dp)
-                        .background(R.color.text_secondary),
-                ) {
-                    Box(
-                        modifier = GlanceModifier
-                            .background(R.color.accent_600)
-                            .size(24.dp).cornerRadius(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Image(
-                            provider = ip,
-                            contentDescription = null,
-                            modifier = GlanceModifier.size(21.dp),
-                        )
-                    }
+        Box {
+            if(recyclingDayModel?.isDone == true){
+                Box(contentAlignment = Alignment.BottomStart) {
+                    CheckIcon(
+                        modifier = GlanceModifier,
+                        context = context)
                 }
-                Spacer(modifier = GlanceModifier.size(1.dp))
+            }
+            Row(horizontalAlignment = Alignment.End, modifier = GlanceModifier.fillMaxWidth()) {
+                recyclingDayModel?.type?.forEachIndexed { index, type ->
+                    val d = context.resources.getDrawable(type.toIcon(), null)
+                    val color = context.getColor(R.color.primary)
+                    d.setTint(color)
+                    val bm = d.toBitmap(width = 128, height = 128)
+                    val ip = ImageProvider(bm)
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = GlanceModifier.size(28.dp).cornerRadius(28.dp)
+                            .background(R.color.text_secondary),
+                    ) {
+                        Box(
+                            modifier = GlanceModifier
+                                .background(R.color.accent_600)
+                                .size(24.dp).cornerRadius(24.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                provider = ip,
+                                contentDescription = null,
+                                modifier = GlanceModifier.size(21.dp),
+                            )
+                        }
+                    }
+                    Spacer(modifier = GlanceModifier.size(1.dp))
+                }
             }
         }
     }
+}
+
+@Composable
+fun CheckIcon(modifier: GlanceModifier, context: Context) {
+    val icon = context.resources.getDrawable(R.drawable.ic_check, null)
+    val color = context.getColor(R.color.primary)
+    icon.setTint(color)
+    val bm = icon.toBitmap(width = 128, height = 128)
+    val ip = ImageProvider(bm)
+    Image(
+        provider = ip,
+        contentDescription = null,
+        modifier = modifier.size(24.dp),
+    )
+    Spacer(modifier = modifier)
 }

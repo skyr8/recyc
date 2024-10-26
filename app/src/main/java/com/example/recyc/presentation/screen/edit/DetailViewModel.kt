@@ -5,6 +5,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.recyc.data.model.RecyclingType
 import com.example.recyc.domain.model.RecyclingDayModel
+import com.example.recyc.domain.usecase.GetCurrentDayUseCase
 import com.example.recyc.domain.usecase.GetRecyclerDetailUseCase
 import com.example.recyc.domain.usecase.PreferenceUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,15 +18,19 @@ import javax.inject.Inject
 class DetailViewModel @Inject constructor(
     private val preferenceUseCase: PreferenceUseCase,
     private val getRecyclerDetailUseCase: GetRecyclerDetailUseCase,
+    private val getCurrentDayUseCase: GetCurrentDayUseCase,
 ) : ViewModel() {
     val _detailState: MutableStateFlow<DetailState> = MutableStateFlow(DetailState())
     val detailDays = _detailState.asLiveData()
 
     fun getDetail(id: Int) {
         viewModelScope.launch {
+            val currentDay = getCurrentDayUseCase()
             val recyclingDayModel = getRecyclerDetailUseCase(id)
             _detailState.value = _detailState.value.copy(
                 recyclingDayModel = recyclingDayModel,
+                isCurrentDay = currentDay == recyclingDayModel?.day,
+                isCurrentDayConfirmed = preferenceUseCase.isCurrentDayDone(currentDay)
             )
         }
     }
@@ -33,6 +38,13 @@ class DetailViewModel @Inject constructor(
     fun saveChanges() {
         viewModelScope.launch {
             val recyclingDayModel = _detailState.value.recyclingDayModel
+            if (_detailState.value.isCurrentDay) {
+                if (_detailState.value.isCurrentDayConfirmed) {
+                    preferenceUseCase.setDayConfirmation(recyclingDayModel?.day?.name.orEmpty())
+                }else{
+                    preferenceUseCase.clearConfirmationDay()
+                }
+            }
             recyclingDayModel?.let {
                 preferenceUseCase.setRecyclerDay(
                     recyclingDayModel.id,
@@ -53,10 +65,16 @@ class DetailViewModel @Inject constructor(
         }
     }
 
+    fun updateConfirmationDay(isConfirmed: Boolean) {
+        viewModelScope.launch {
+            _detailState.update { it.copy(isCurrentDayConfirmed = isConfirmed) }
+        }
+    }
 
     data class DetailState(
         val recyclingDayModel: RecyclingDayModel? = null,
         val isLoading: Boolean = false,
+        val isCurrentDay: Boolean = false,
+        val isCurrentDayConfirmed: Boolean = false,
     )
-
 }

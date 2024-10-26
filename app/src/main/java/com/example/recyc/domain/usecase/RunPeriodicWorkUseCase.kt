@@ -20,8 +20,8 @@ class RunPeriodicWorkUseCase @Inject constructor(
     @ActivityContext private val activityContext: Context
 ) {
 
-//    operator fun invoke() = enqueueWorker()
-    operator fun invoke() = startWorkerImmediately()
+    operator fun invoke() = enqueueWorker()
+//    operator fun invoke() = startWorkerImmediately()
 
     private fun enqueueWorker() {
         val workManager = WorkManager.getInstance(activityContext)
