@@ -2,6 +2,7 @@ package com.example.recyc.presentation.widget.worker
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
@@ -10,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.recyc.domain.geofence.LocationService
 import com.example.recyc.domain.usecase.GetCurrentDateUseCase
 import com.example.recyc.domain.usecase.GetCurrentDayUseCase
 import com.example.recyc.domain.usecase.GetCurrentRecyclerDayUseCase
@@ -34,17 +36,25 @@ internal class DailyReadWorkerTask @AssistedInject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     override suspend fun doWork(): Result {
         Log.d("DAILY_WORKER", "doWork: Started")
+        if (!preferenceUseCase.isServiceUp()) {
+            Log.d("DAILY_WORKER", "doWork: LocationService is not running, restarting it")
+            val serviceIntent = Intent(context, LocationService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            }
+        }
         val currentModel = getCurrentRecyclerDayUseCase()
         val currentDate = getCurrentDateUseCase()
         val preferenceDate = preferenceUseCase.getLastNotificationDate()
-        val model = currentModel?.copy(isDone = preferenceUseCase.isCurrentDayDone(currentDayUseCase()))
+        val model =
+            currentModel?.copy(isDone = preferenceUseCase.isCurrentDayDone(currentDayUseCase()))
         val recyclerJson = Gson().toJson(model)
 
         val lastDayDone = preferenceUseCase.getLastDayDone()
         if (lastDayDone != currentDayUseCase()) {
             preferenceUseCase.clearConfirmationDay()
         }
-        if (isOneHourBefore(currentModel?.hour) && (currentDate != preferenceDate)) {
+        if (isOneHourBefore("19:00") && (currentDate != preferenceDate)) {
             if (ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS

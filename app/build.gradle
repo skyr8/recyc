@@ -102,7 +102,9 @@ dependencies {
     implementation "com.google.accompanist:accompanist-systemuicontroller:0.27.0"
     implementation 'androidx.glance:glance-appwidget:1.0.0-alpha03'
 
+    //maps
     implementation 'com.google.android.gms:play-services-location:21.0.1'
-
-
+    implementation 'com.google.android.gms:play-services-maps:18.0.2'
+    implementation 'com.google.maps.android:android-maps-utils:2.3.0'
+    implementation 'com.google.maps.android:maps-compose:2.11.0'
 }

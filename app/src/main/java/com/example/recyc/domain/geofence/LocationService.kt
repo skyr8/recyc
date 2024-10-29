@@ -1,5 +1,6 @@
 package com.example.recyc.domain.geofence
 
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -15,7 +16,7 @@ import com.example.recyc.R
 import com.example.recyc.domain.usecase.GetCurrentDayUseCase
 import com.example.recyc.domain.usecase.GetCurrentRecyclerDayUseCase
 import com.example.recyc.domain.usecase.PreferenceUseCase
-import com.example.recyc.utils.isOneHourBefore
+import com.example.recyc.utils.isHoursBefore
 import com.example.recyc.utils.showNotification
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.GeofencingClient
@@ -53,6 +54,7 @@ class LocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        preferenceUseCase.setServiceUp(true)
         Log.d("LOCATION_SERVICE:::", "onCreate called")
         createNotificationChannel()
         startForegroundService()
@@ -71,7 +73,7 @@ class LocationService : Service() {
             val geofenceChannel = NotificationChannel(
                 "geofence_channel",
                 "Geofence Service Channel",
-                NotificationManager.IMPORTANCE_MAX
+                NotificationManager.IMPORTANCE_HIGH
             )
             geofenceChannel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             val manager = getSystemService(NotificationManager::class.java)
@@ -89,6 +91,7 @@ class LocationService : Service() {
         startForeground(1, notification)
     }
 
+    @SuppressLint("MissingPermission")
     private fun startLocationMonitoring() {
         Log.d("LOCATION_SERVICE:::", "startLocationMonitoring called")
         val locationRequest =
@@ -121,10 +124,11 @@ class LocationService : Service() {
 
     private fun checkUserDistanceFromHome(location: Location) {
         if(preferenceUseCase.isDaySkipped(currentDayUseCase())) return
+        val userLocation = preferenceUseCase.getHomeLocation()
         Log.d("LOCATION_SERVICE:::", "checkUserDistanceFromHome called with location: $location")
         val homeLocation = Location("home").apply {
-            latitude = homeLatitude
-            longitude = homeLongitude
+            latitude = userLocation?.latitude ?: homeLatitude
+            longitude = userLocation?.longitude ?: homeLongitude
         }
 
         val distance = location.distanceTo(homeLocation)
@@ -146,7 +150,7 @@ class LocationService : Service() {
     private fun sendNotification() {
         Log.d("LOCATION_SERVICE:::", "sendNotification called")
         CoroutineScope(Dispatchers.Default).launch {
-            if(isOneHourBefore(getRecyclerUseCase()?.hour)){
+            if(isHoursBefore(getRecyclerUseCase()?.hour,2)){
                 sendNotification(this@LocationService)
             }
         }
@@ -159,6 +163,7 @@ class LocationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        preferenceUseCase.setServiceUp(false)
         Log.d("LOCATION_SERVICE:::", "onDestroy called")
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }

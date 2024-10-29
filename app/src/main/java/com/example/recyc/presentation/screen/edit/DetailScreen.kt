@@ -25,8 +25,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,10 +55,12 @@ fun DetailScreen(
     val isLoading = detailState?.isLoading ?: false
     val isCurrentDay = detailState?.isCurrentDay ?: false
     DetailScreenContent(
-        dayModel = day, isLoading = isLoading, onDayUpdate = {
+        dayModel = day, isLoading = isLoading,
+        onDayUpdate = {
             viewModel.updateDay(it)
 
-        }, onBackPressed = onBackPressed,
+        },
+        onBackPressed = onBackPressed,
         onSaveChanges = {
             viewModel.saveChanges()
             onSaveChanges()
@@ -81,6 +85,9 @@ fun DetailScreenContent(
     onConfirmDayCheckChange: (Boolean) -> Unit = {},
     isCurrentDay: Boolean = false,
 ) {
+
+    val hapticFeedback = LocalHapticFeedback.current
+
     Scaffold(topBar = {
         Row(
             modifier = Modifier
@@ -158,7 +165,10 @@ fun DetailScreenContent(
                                 Spacer(modifier = Modifier.size(8.dp))
                                 Switch(
                                     checked = isDayDone,
-                                    onCheckedChange = onConfirmDayCheckChange
+                                    onCheckedChange = { check ->
+                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onConfirmDayCheckChange(check)
+                                    }
                                 )
                             }
                         }

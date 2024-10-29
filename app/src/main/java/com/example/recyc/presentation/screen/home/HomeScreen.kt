@@ -1,7 +1,8 @@
 package com.example.recyc.presentation.screen.home
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
@@ -41,7 +47,8 @@ import com.google.gson.Gson
 fun HomeScreen(
     viewModel: HomeViewModel? = hiltViewModel(),
     sharedViewModel: SharedViewModel,
-    onItemClick: (Int) -> Unit = {}
+    onItemClick: (Int) -> Unit = {},
+    onSettingsClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -70,9 +77,12 @@ fun HomeScreen(
         currentModel = currentModel,
         onItemClick = onItemClick,
         isCurrentDayConfirmed = isCurrentDayConfirmed,
+        onSettingsClick = onSettingsClick
     )
+
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecyclingScreenContent(
     days: List<RecyclingDayModel>,
@@ -81,78 +91,102 @@ fun RecyclingScreenContent(
     currentModel: RecyclingDayModel?,
     onItemClick: (Int) -> Unit,
     isCurrentDayConfirmed: Boolean,
+    onSettingsClick: () -> Unit = {}
 ) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        if (isLoading) {
-            CircularProgressIndicator(
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        } else {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                currentModel?.let {
-                    Column(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surface)
-                            .padding(16.dp)
-                    ) {
-                        Row {
-                            Label(
-                                modifier = Modifier.weight(1f),
-                                text = "TODAY",
-                                style = TextStyle(fontSize = 18.sp),
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                            Label(
-                                text = currentModel.hour,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                style = TextStyle(fontSize = 18.sp)
-                            )
-                        }
-                        Margin(24)
-                        Row {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Label(
-                                        text = currentModel.type.joinToString("•"),
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        style = TextStyle(fontSize = 20.sp),
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    currentModel.type.forEach {
-                                        Image(
-                                            painter = painterResource(it.toIcon()),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(42.dp),
-                                            colorFilter = ColorFilter
-                                                .tint(MaterialTheme.colorScheme.onPrimaryContainer)
+    Scaffold(
+        topBar = {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 14.dp)
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .clickable { onSettingsClick() }
+                        .size(40.dp)
+                        .padding(6.dp)
+                )
+            }
+        }) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+                .padding(top = 50.dp)
+        ) {
+
+            if (isLoading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    currentModel?.let {
+                        Column(
+                            modifier = Modifier
+                                .padding(16.dp)
+                        ) {
+                            Row {
+                                Label(
+                                    modifier = Modifier.weight(1f),
+                                    text = "TODAY",
+                                    style = TextStyle(fontSize = 18.sp),
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                                Label(
+                                    text = currentModel.hour,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    style = TextStyle(fontSize = 18.sp)
+                                )
+                            }
+                            Margin(24)
+                            Row {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Label(
+                                            text = currentModel.type.joinToString("•"),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                            style = TextStyle(fontSize = 20.sp),
+                                            modifier = Modifier.weight(1f)
                                         )
-                                        Margin(margin = 8)
+                                        currentModel.type.forEach {
+                                            Image(
+                                                painter = painterResource(it.toIcon()),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(42.dp),
+                                                colorFilter = ColorFilter
+                                                    .tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                                            )
+                                            Margin(margin = 8)
+                                        }
                                     }
                                 }
-                            }
 
+                            }
                         }
                     }
+                    Margin(16)
+                    LazyColumn(
+                        modifier = Modifier.padding(16.dp),
+                        content = {
+                            items(days) {
+                                val isCurrentDay = currentDay == it.day
+                                RecyclingCard(
+                                    recyclingDay = it,
+                                    isCurrentDay = isCurrentDay,
+                                    onClick = onItemClick,
+                                    isConfirmed = isCurrentDay && isCurrentDayConfirmed
+                                )
+                                Margin(margin = 8)
+                            }
+                        })
                 }
-                Margin(16)
-                LazyColumn(
-                    modifier = Modifier.padding(16.dp),
-                    content = {
-                        items(days) {
-                            val isCurrentDay = currentDay == it.day
-                            RecyclingCard(
-                                recyclingDay = it,
-                                isCurrentDay = isCurrentDay,
-                                onClick = onItemClick,
-                                isConfirmed = isCurrentDay && isCurrentDayConfirmed
-                            )
-                            Margin(margin = 8)
-                        }
-                    })
             }
         }
     }

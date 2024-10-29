@@ -57,8 +57,16 @@ fun RecyclingCard(
     val typeColor =
         if (isCurrentDay) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.onSurface
 
+    val cardModifier = if (isCurrentDay) {
+        Modifier
+            .fillMaxWidth()
+            .border(2.dp, MaterialTheme.colorScheme.tertiary, RoundedCornerShape(percent = 10))
+    } else {
+        Modifier.fillMaxWidth()
+    }
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = cardModifier,
         shape = RoundedCornerShape(percent = 10),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp,

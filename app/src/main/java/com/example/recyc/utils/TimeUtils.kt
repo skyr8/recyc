@@ -7,6 +7,10 @@ import java.util.Locale
 import java.util.concurrent.TimeUnit
 
 fun isOneHourBefore(recyclingHour: String?): Boolean {
+    return isHoursBefore(recyclingHour, 1)
+}
+
+fun isHoursBefore(recyclingHour: String?, hours:Int): Boolean {
     if (recyclingHour.isNullOrEmpty()) return false
 
     val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
@@ -25,7 +29,8 @@ fun isOneHourBefore(recyclingHour: String?): Boolean {
     val timeDifference = recyclingTimeInMillis - currentTime
     val minutesDifference = TimeUnit.MILLISECONDS.toMinutes(timeDifference)
 
-    val result = minutesDifference in 0..60
+    val result = minutesDifference in 0..(60*hours)
     Log.d("DAILY_WORKER", "isOneHourBefore: Result = $result")
     return result
 }
+

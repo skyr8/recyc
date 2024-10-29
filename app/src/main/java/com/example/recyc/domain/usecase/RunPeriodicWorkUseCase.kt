@@ -3,7 +3,6 @@ package com.example.recyc.domain.usecase
 import android.content.Context
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequest
@@ -37,7 +36,6 @@ class RunPeriodicWorkUseCase @Inject constructor(
             .addTag("daily_read_worker_tag")
             .setConstraints(
                 Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
             .build()
@@ -50,7 +48,6 @@ class RunPeriodicWorkUseCase @Inject constructor(
             .addTag("daily_read_worker_tag")
             .setConstraints(
                 Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
             )
             .build()

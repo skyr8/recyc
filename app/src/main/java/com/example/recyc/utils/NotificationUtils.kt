@@ -17,12 +17,13 @@ fun Context.showNotification(dayModel: RecyclingDayModel) {
 
     val confirmIntent = Intent(this, GeofenceActionReceiver::class.java).apply {
         action = GeofenceActionReceiver.ACTION_CONFIRM_DAY
-        putExtra("date", dayModel.day)
-        putExtra("notificationId", notificationId)
+        putExtra(GeofenceActionReceiver.DATE, dayModel.day.name)
+        putExtra(GeofenceActionReceiver.NOTIFICATION_ID, notificationId)
     }
 
     val dismissIntent = Intent(this, GeofenceActionReceiver::class.java).apply {
         action = GeofenceActionReceiver.ACTION_DISMISS_DAY
+        putExtra(GeofenceActionReceiver.NOTIFICATION_ID, notificationId)
     }
 
     val confirmPendingIntent = PendingIntent.getBroadcast(
