@@ -14,7 +14,7 @@ interface PreferenceUseCase {
     fun getLastDayDone(): DayEnum?
     suspend fun setDayConfirmation(date: String)
     suspend fun clearConfirmationDay()
-    fun skipDay(currentDay:DayEnum?)
+    fun skipDay(currentDay:DayEnum?, isSkipped:Boolean = true)
     fun isDaySkipped(currentDay:DayEnum?): Boolean
     fun setHomeLocation(location: LatLng)
     fun getHomeLocation(): LatLng?

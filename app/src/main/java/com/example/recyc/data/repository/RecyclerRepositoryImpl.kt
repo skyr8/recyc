@@ -17,54 +17,47 @@ class RecyclerRepositoryImpl
 
     override suspend fun getRecyclerDays(): List<RecyclingDayModel> {
         val list = listOf(
-            preferencesUseCase.getRecyclerDay(1) ?:
-            RecyclingDayModel(
+            preferencesUseCase.getRecyclerDay(1) ?: RecyclingDayModel(
                 1,
                 DayEnum.MONDAY,
                 listOf(RecyclingType.ORGANIC),
-                "22:00"
+                "18:00"
             ),
-            preferencesUseCase.getRecyclerDay(2) ?:
-            RecyclingDayModel(
+            preferencesUseCase.getRecyclerDay(2) ?: RecyclingDayModel(
                 2,
                 DayEnum.TUESDAY,
                 listOf(RecyclingType.WASTE),
-                "22:00"
+                "18:00"
             ),
-            preferencesUseCase.getRecyclerDay(3) ?:
-            RecyclingDayModel(
+            preferencesUseCase.getRecyclerDay(3) ?: RecyclingDayModel(
                 3,
                 DayEnum.WEDNESDAY,
                 listOf(RecyclingType.PLASTIC),
-                "22:00"
+                "18:00"
             ),
-            preferencesUseCase.getRecyclerDay(4) ?:
-            RecyclingDayModel(
+            preferencesUseCase.getRecyclerDay(4) ?: RecyclingDayModel(
                 4,
                 DayEnum.THURSDAY,
                 listOf(RecyclingType.ORGANIC),
-                "22:00"
+                "18:00"
             ),
-            preferencesUseCase.getRecyclerDay(5) ?:
-            RecyclingDayModel(
+            preferencesUseCase.getRecyclerDay(5) ?: RecyclingDayModel(
                 5,
                 DayEnum.FRIDAY,
                 listOf(RecyclingType.PAPER),
-                "22:00"
+                "18:00"
             ),
-            preferencesUseCase.getRecyclerDay(6) ?:
-            RecyclingDayModel(
+            preferencesUseCase.getRecyclerDay(6) ?: RecyclingDayModel(
                 6,
                 DayEnum.SATURDAY,
                 listOf(RecyclingType.ORGANIC),
-                "22:00"
+                "18:00"
             ),
-            preferencesUseCase.getRecyclerDay(7) ?:
-            RecyclingDayModel(
+            preferencesUseCase.getRecyclerDay(7) ?: RecyclingDayModel(
                 7,
                 DayEnum.SUNDAY,
                 listOf(RecyclingType.NONE),
-                "22:00"
+                "18:00"
             )
         )
         return list

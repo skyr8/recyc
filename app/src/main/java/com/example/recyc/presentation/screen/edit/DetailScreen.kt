@@ -1,5 +1,6 @@
 package com.example.recyc.presentation.screen.edit
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,26 +19,23 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.recyc.data.model.DayEnum
 import com.example.recyc.data.model.RecyclingType
 import com.example.recyc.domain.model.RecyclingDayModel
 import com.example.recyc.presentation.compose.component.RecyclingCard
+import com.example.recyc.presentation.compose.component.SwitchRecyc
 import com.example.recyc.presentation.theme.AppTheme
 
 @Composable
@@ -54,6 +52,7 @@ fun DetailScreen(
     val day = detailState?.recyclingDayModel
     val isLoading = detailState?.isLoading ?: false
     val isCurrentDay = detailState?.isCurrentDay ?: false
+    val isSkipDay = detailState?.isDaySkipped ?: false
     DetailScreenContent(
         dayModel = day, isLoading = isLoading,
         onDayUpdate = {
@@ -70,6 +69,10 @@ fun DetailScreen(
             viewModel.updateConfirmationDay(it)
         },
         isCurrentDay = isCurrentDay,
+        isSkipDay = isSkipDay,
+        onSkipDayCheckChange = {
+            viewModel.updateSkipDay(it)
+        }
     )
 }
 
@@ -83,10 +86,11 @@ fun DetailScreenContent(
     onSaveChanges: () -> Unit = {},
     isDayDone: Boolean = false,
     onConfirmDayCheckChange: (Boolean) -> Unit = {},
+    onSkipDayCheckChange: (Boolean) -> Unit = {},
     isCurrentDay: Boolean = false,
+    isSkipDay: Boolean = false,
 ) {
-
-    val hapticFeedback = LocalHapticFeedback.current
+    val context = LocalContext.current
 
     Scaffold(topBar = {
         Row(
@@ -148,29 +152,19 @@ fun DetailScreenContent(
                         }
                         Spacer(modifier = Modifier.size(24.dp))
                         if (isCurrentDay) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                val text =
-                                    "Have you already taken out ${dayModel.type.joinToString("and ")}?"
-                                Text(
-                                    text = text,
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 18.sp
-                                    ),
-                                    modifier = Modifier.weight(1f)
-                                )
-                                Spacer(modifier = Modifier.size(8.dp))
-                                Switch(
-                                    checked = isDayDone,
-                                    onCheckedChange = { check ->
-                                        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
-                                        onConfirmDayCheckChange(check)
-                                    }
-                                )
-                            }
+                            SwitchRecyc(
+                                text =
+                                "Have you already taken out ${dayModel.type.joinToString("and ")}?",
+                                isChecked = isDayDone,
+                                onCheckedChange = onConfirmDayCheckChange,
+                                enabled = !isSkipDay
+                            )
+                            SwitchRecyc(
+                                text =
+                                "Skip this day",
+                                isChecked = isSkipDay,
+                                onCheckedChange = onSkipDayCheckChange,
+                            )
                         }
                     }
                 }
@@ -289,3 +283,22 @@ fun DetailScreenPreview() {
         )
     }
 }
+
+@Composable
+@Preview
+fun DetailScreenPreview_2() {
+    AppTheme {
+        DetailScreenContent(
+            dayModel = RecyclingDayModel(
+                id = 1,
+                day = DayEnum.FRIDAY,
+                type = listOf(RecyclingType.PLASTIC),
+                hour = "10:00",
+            ),
+            isLoading = false,
+            isCurrentDay = true,
+            isSkipDay = true
+        )
+    }
+}
+

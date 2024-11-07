@@ -45,19 +45,24 @@ class PreferenceUseCaseImpl @Inject constructor(private val preferences: SharedP
 
     override fun getLastDayDone(): DayEnum? {
         val currentDayPref = preferences.getString(DAY_CONFIRMATION, "")
-        return if(currentDayPref != "") DayEnum.valueOf(currentDayPref.orEmpty()) else null
+        return if (currentDayPref != "") DayEnum.valueOf(currentDayPref.orEmpty()) else null
     }
 
     override suspend fun setDayConfirmation(date: String) {
         preferences.edit().putString(DAY_CONFIRMATION, date).apply()
+        preferences.edit().putString(DAY_SKIPPED, "").apply()
     }
 
     override suspend fun clearConfirmationDay() {
         preferences.edit().remove(DAY_CONFIRMATION).apply()
     }
 
-    override fun skipDay(currentDay: DayEnum?) {
-        preferences.edit().putString(DAY_SKIPPED, currentDay?.name).apply()
+    override fun skipDay(currentDay: DayEnum?, isSkipped: Boolean) {
+        if (isSkipped) {
+            preferences.edit().putString(DAY_SKIPPED, currentDay?.name).apply()
+        } else {
+            preferences.edit().putString(DAY_SKIPPED, "").apply()
+        }
     }
 
     override fun isDaySkipped(currentDay: DayEnum?): Boolean {

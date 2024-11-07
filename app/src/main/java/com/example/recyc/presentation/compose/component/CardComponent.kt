@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +49,7 @@ fun RecyclingCard(
     isCurrentDay: Boolean = false,
     onClick: (Int) -> Unit = {},
     isConfirmed: Boolean = false,
+    isSkipped: Boolean = false
 ) {
     val cardColor =
         if (isCurrentDay) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
@@ -117,8 +119,10 @@ fun RecyclingCard(
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
-                AnimatedContent(targetState = isConfirmed) {
-                    if (isConfirmed) {
+                AnimatedContent(targetState = isConfirmed || isSkipped) {
+                    if (isConfirmed || isSkipped) {
+                        val icon  = if (isConfirmed) Icons.Default.Check else Icons.Default.Close
+                        val color = if (isConfirmed) Color.Green else Color.Red
                         Column(
                             modifier = Modifier.height(38.dp),
                             verticalArrangement = Arrangement.Center
@@ -126,15 +130,15 @@ fun RecyclingCard(
                             Box(
                                 modifier = Modifier.border(
                                     1.dp,
-                                    Color.Green,
+                                    color,
                                     RoundedCornerShape(50)
                                 )
                             ) {
                                 Icon(
                                     modifier = Modifier.padding(1.dp),
-                                    imageVector = Icons.Default.Check,
+                                    imageVector = icon,
                                     contentDescription = null,
-                                    tint = Color.Green
+                                    tint = color
                                 )
                             }
                         }
@@ -169,4 +173,16 @@ private fun RecyclingCardCurrentDayPreview() {
         id = 0,
     )
     RecyclingCard(recyclingDay = data, isCurrentDay = true, isConfirmed = true)
+}
+
+@Preview
+@Composable
+private fun RecyclingCardCurrentDayPreviewSkip() {
+    val data = RecyclingDayModel(
+        hour = "20 - 22",
+        type = listOf(RecyclingType.ORGANIC, RecyclingType.GLASS),
+        day = DayEnum.MONDAY,
+        id = 0,
+    )
+    RecyclingCard(recyclingDay = data, isCurrentDay = true, isConfirmed = false, isSkipped = true)
 }

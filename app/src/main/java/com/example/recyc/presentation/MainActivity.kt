@@ -39,6 +39,7 @@ import com.example.recyc.domain.geofence.LocationService
 import com.example.recyc.domain.usecase.RunPeriodicWorkUseCase
 import com.example.recyc.presentation.navigation.Navigator
 import com.example.recyc.presentation.theme.AppTheme
+import com.example.recyc.utils.Logger
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import dagger.hilt.android.AndroidEntryPoint
@@ -129,7 +130,7 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("MissingPermission")
     private fun setupLocationListener() {
         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-            Log.d("MainActivity:::", "Location: $location")
+            Logger.log("MainActivity:::", "Location: $location")
             location?.let {
                 _locationFlow.update { it }
             }

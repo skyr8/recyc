@@ -10,6 +10,7 @@ import com.example.recyc.SharedViewModel
 import com.example.recyc.presentation.screen.edit.DetailScreen
 import com.example.recyc.presentation.screen.home.HomeScreen
 import com.example.recyc.presentation.screen.map.MapScreen
+import com.example.recyc.utils.Logger
 
 object Routes {
     const val RecyclingScreen = "recycling_screen"
@@ -25,7 +26,7 @@ fun Navigator(
     userLocation: Location?,
     onItemSaved: () -> Unit = {}
 ) {
-    Log.d("Navigator:::", "userLocation: $userLocation")
+    Logger.log("Navigator:::", "userLocation: $userLocation")
     NavHost(navController = navController, startDestination = Routes.RecyclingScreen) {
         composable(Routes.RecyclingScreen) {
             HomeScreen(onItemClick = {

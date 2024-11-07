@@ -8,7 +8,9 @@ import com.example.recyc.domain.model.RecyclingDayModel
 import com.example.recyc.domain.usecase.GetCurrentDayUseCase
 import com.example.recyc.domain.usecase.GetRecyclerDetailUseCase
 import com.example.recyc.domain.usecase.PreferenceUseCase
+import com.example.recyc.domain.usecase.UpdateWidgetUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,6 +21,7 @@ class DetailViewModel @Inject constructor(
     private val preferenceUseCase: PreferenceUseCase,
     private val getRecyclerDetailUseCase: GetRecyclerDetailUseCase,
     private val getCurrentDayUseCase: GetCurrentDayUseCase,
+    private val updateWidgetUseCase: UpdateWidgetUseCase,
 ) : ViewModel() {
     val _detailState: MutableStateFlow<DetailState> = MutableStateFlow(DetailState())
     val detailDays = _detailState.asLiveData()
@@ -30,7 +33,8 @@ class DetailViewModel @Inject constructor(
             _detailState.value = _detailState.value.copy(
                 recyclingDayModel = recyclingDayModel,
                 isCurrentDay = currentDay == recyclingDayModel?.day,
-                isCurrentDayConfirmed = preferenceUseCase.isCurrentDayDone(currentDay)
+                isCurrentDayConfirmed = preferenceUseCase.isCurrentDayDone(currentDay),
+                isDaySkipped = preferenceUseCase.isDaySkipped(currentDay)
             )
         }
     }
@@ -45,12 +49,15 @@ class DetailViewModel @Inject constructor(
                     preferenceUseCase.clearConfirmationDay()
                 }
             }
+            preferenceUseCase.skipDay(_detailState.value.recyclingDayModel?.day ?: return@launch, isSkipped = _detailState.value.isDaySkipped)
             recyclingDayModel?.let {
                 preferenceUseCase.setRecyclerDay(
                     recyclingDayModel.id,
                     recyclingDayModel,
                 )
             }
+            delay(200)
+            updateWidgetUseCase()
         }
     }
 
@@ -71,10 +78,17 @@ class DetailViewModel @Inject constructor(
         }
     }
 
+    fun updateSkipDay(isSkipped: Boolean) {
+        viewModelScope.launch {
+            _detailState.update { it.copy(isDaySkipped = isSkipped) }
+        }
+    }
+
     data class DetailState(
         val recyclingDayModel: RecyclingDayModel? = null,
         val isLoading: Boolean = false,
         val isCurrentDay: Boolean = false,
         val isCurrentDayConfirmed: Boolean = false,
+        val isDaySkipped: Boolean = false,
     )
 }

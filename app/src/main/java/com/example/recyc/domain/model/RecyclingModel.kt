@@ -10,6 +10,7 @@ data class RecyclingDayModel(
     val type: List<RecyclingType>,
     val hour: String,
     val isDone: Boolean = false,
+    val isSkipped: Boolean = false,
 ):Serializable
 
 

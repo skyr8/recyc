@@ -42,6 +42,7 @@ class HomeViewModel @Inject constructor(
                         currentDay = getCurrentDayUseCase(),
                         isLoading = false,
                         isCurrentDayConfirmed = isCurrentDayConfirmed,
+                        isCurrentDaySkipped = preferenceUseCase.isDaySkipped(currentRecyclingDayModel()?.day)
                     )
                 }
             }
@@ -53,6 +54,7 @@ class HomeViewModel @Inject constructor(
         val currentDay: DayEnum? = null,
         val isLoading: Boolean = false,
         val isCurrentDayConfirmed: Boolean = false,
+        val isCurrentDaySkipped: Boolean = false,
     )
 
 }

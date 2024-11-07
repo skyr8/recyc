@@ -59,6 +59,7 @@ fun HomeScreen(
     val currentDay = recyclingState?.currentDay
     val isLoading = recyclingState?.isLoading ?: true
     val isCurrentDayConfirmed = recyclingState?.isCurrentDayConfirmed ?: false
+    val isCurrentDaySkipped = recyclingState?.isCurrentDaySkipped ?: false
 
     val currentModel = days.find { it.day == currentDay }
     if (sharedState == true) {
@@ -77,7 +78,8 @@ fun HomeScreen(
         currentModel = currentModel,
         onItemClick = onItemClick,
         isCurrentDayConfirmed = isCurrentDayConfirmed,
-        onSettingsClick = onSettingsClick
+        onSettingsClick = onSettingsClick,
+        isCurrentDaySkipped = isCurrentDaySkipped
     )
 
 }
@@ -91,6 +93,7 @@ fun RecyclingScreenContent(
     currentModel: RecyclingDayModel?,
     onItemClick: (Int) -> Unit,
     isCurrentDayConfirmed: Boolean,
+    isCurrentDaySkipped: Boolean = false,
     onSettingsClick: () -> Unit = {}
 ) {
     Scaffold(
@@ -117,7 +120,6 @@ fun RecyclingScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(it)
-                .padding(top = 50.dp)
         ) {
 
             if (isLoading) {
@@ -181,7 +183,8 @@ fun RecyclingScreenContent(
                                     recyclingDay = it,
                                     isCurrentDay = isCurrentDay,
                                     onClick = onItemClick,
-                                    isConfirmed = isCurrentDay && isCurrentDayConfirmed
+                                    isConfirmed = isCurrentDay && isCurrentDayConfirmed,
+                                    isSkipped = isCurrentDay && isCurrentDaySkipped
                                 )
                                 Margin(margin = 8)
                             }

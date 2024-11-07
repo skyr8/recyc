@@ -215,9 +215,19 @@ private fun MediumWidget(
         Box {
             if(recyclingDayModel?.isDone == true){
                 Box(contentAlignment = Alignment.BottomStart) {
-                    CheckIcon(
+                    WidgetIcon(
                         modifier = GlanceModifier,
-                        context = context)
+                        context = context,
+                        id = R.drawable.ic_check
+                    )
+                }
+            }else if(recyclingDayModel?.isSkipped == true){
+                Box(contentAlignment = Alignment.BottomStart) {
+                    WidgetIcon(
+                        modifier = GlanceModifier,
+                        context = context,
+                        id = R.drawable.ic_cancel
+                    )
                 }
             }
             Row(horizontalAlignment = Alignment.End, modifier = GlanceModifier.fillMaxWidth()) {
@@ -255,6 +265,21 @@ private fun MediumWidget(
 @Composable
 fun CheckIcon(modifier: GlanceModifier, context: Context) {
     val icon = context.resources.getDrawable(R.drawable.ic_check, null)
+    val color = context.getColor(R.color.primary)
+    icon.setTint(color)
+    val bm = icon.toBitmap(width = 128, height = 128)
+    val ip = ImageProvider(bm)
+    Image(
+        provider = ip,
+        contentDescription = null,
+        modifier = modifier.size(24.dp),
+    )
+    Spacer(modifier = modifier)
+}
+
+@Composable
+fun WidgetIcon(modifier: GlanceModifier, context: Context,id: Int) {
+    val icon = context.resources.getDrawable(id, null)
     val color = context.getColor(R.color.primary)
     icon.setTint(color)
     val bm = icon.toBitmap(width = 128, height = 128)

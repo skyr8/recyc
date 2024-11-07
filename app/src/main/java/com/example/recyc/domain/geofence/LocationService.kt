@@ -16,6 +16,7 @@ import com.example.recyc.R
 import com.example.recyc.domain.usecase.GetCurrentDayUseCase
 import com.example.recyc.domain.usecase.GetCurrentRecyclerDayUseCase
 import com.example.recyc.domain.usecase.PreferenceUseCase
+import com.example.recyc.utils.Logger
 import com.example.recyc.utils.isHoursBefore
 import com.example.recyc.utils.showNotification
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -54,13 +55,7 @@ class LocationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        preferenceUseCase.setServiceUp(true)
-        Log.d("LOCATION_SERVICE:::", "onCreate called")
-        createNotificationChannel()
-        startForegroundService()
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        geofencingClient = LocationServices.getGeofencingClient(this)
-        startLocationMonitoring()
+
     }
 
     private fun createNotificationChannel() {
@@ -93,7 +88,7 @@ class LocationService : Service() {
 
     @SuppressLint("MissingPermission")
     private fun startLocationMonitoring() {
-        Log.d("LOCATION_SERVICE:::", "startLocationMonitoring called")
+        Logger.log("LOCATION_SERVICE:::", "startLocationMonitoring called")
         val locationRequest =
             LocationRequest.Builder(Priority.PRIORITY_LOW_POWER, TimeUnit.MINUTES.toMillis(1))
                 .apply {
@@ -106,13 +101,20 @@ class LocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("LOCATION_SERVICE:::", "onStartCommand called")
+        Logger.log("LOCATION_SERVICE:::", "onStartCommand called")
+        preferenceUseCase.setServiceUp(true)
+        Logger.log("LOCATION_SERVICE:::", "onCreate called")
+        createNotificationChannel()
+        startForegroundService()
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        geofencingClient = LocationServices.getGeofencingClient(this)
+        startLocationMonitoring()
         return START_STICKY
     }
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            Log.d(
+            Logger.log(
                 "LOCATION_SERVICE:::",
                 "onLocationResult called with locations: ${locationResult.locations}"
             )
@@ -124,53 +126,54 @@ class LocationService : Service() {
 
     private fun checkUserDistanceFromHome(location: Location) {
         if(preferenceUseCase.isDaySkipped(currentDayUseCase())) return
+        if (preferenceUseCase.isCurrentDayDone(currentDayUseCase())) return
         val userLocation = preferenceUseCase.getHomeLocation()
-        Log.d("LOCATION_SERVICE:::", "checkUserDistanceFromHome called with location: $location")
+        Logger.log("LOCATION_SERVICE:::", "checkUserDistanceFromHome called with location: $location")
         val homeLocation = Location("home").apply {
             latitude = userLocation?.latitude ?: homeLatitude
             longitude = userLocation?.longitude ?: homeLongitude
         }
 
         val distance = location.distanceTo(homeLocation)
-        Log.d("LOCATION_SERVICE:::", "Distance from home: $distance meters")
+        Logger.log("LOCATION_SERVICE:::", "Distance from home: $distance meters")
         if ((distance > homeRadius) && distance < maxDistance) {
-            Log.d("LOCATION_SERVICE:::", "User is outside the home radius")
+            Logger.log("LOCATION_SERVICE:::", "User is outside the home radius")
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastNotificationTime >= 3600000) { // 1 hour in milliseconds
                 sendNotification()
                 lastNotificationTime = currentTime
             } else {
-                Log.d("LOCATION_SERVICE:::", "Notification already sent within the last hour")
+                Logger.log("LOCATION_SERVICE:::", "Notification already sent within the last hour")
             }
         } else {
-            Log.d("LOCATION_SERVICE:::", "User is within the home radius")
+            Logger.log("LOCATION_SERVICE:::", "User is within the home radius")
         }
     }
 
     private fun sendNotification() {
-        Log.d("LOCATION_SERVICE:::", "sendNotification called")
+        Logger.log("LOCATION_SERVICE:::", "sendNotification called")
         CoroutineScope(Dispatchers.Default).launch {
-            if(isHoursBefore(getRecyclerUseCase()?.hour,2)){
+            if(isHoursBefore(getRecyclerUseCase()?.hour,3)){
                 sendNotification(this@LocationService)
             }
         }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
-        Log.d("LOCATION_SERVICE:::", "onBind called")
+        Logger.log("LOCATION_SERVICE:::", "onBind called")
         return null
     }
 
     override fun onDestroy() {
         super.onDestroy()
         preferenceUseCase.setServiceUp(false)
-        Log.d("LOCATION_SERVICE:::", "onDestroy called")
+        Logger.log("LOCATION_SERVICE:::", "onDestroy called")
         fusedLocationClient.removeLocationUpdates(locationCallback)
     }
 
     private suspend fun sendNotification(context: Context) {
         val dayModel = getRecyclerUseCase()
         dayModel?.let { context.showNotification(it) }
-        Log.d("LOCATION_SERVICE:::", "sendNotification (context) called")
+        Logger.log("LOCATION_SERVICE:::", "sendNotification (context) called")
     }
 }

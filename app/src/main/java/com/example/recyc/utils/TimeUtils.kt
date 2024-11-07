@@ -30,7 +30,7 @@ fun isHoursBefore(recyclingHour: String?, hours:Int): Boolean {
     val minutesDifference = TimeUnit.MILLISECONDS.toMinutes(timeDifference)
 
     val result = minutesDifference in 0..(60*hours)
-    Log.d("DAILY_WORKER", "isOneHourBefore: Result = $result")
+    Logger.log("DAILY_WORKER", "isOneHourBefore: Result = $result")
     return result
 }
 

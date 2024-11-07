@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.recyc.utils.Logger
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.Granularity
 import com.google.android.gms.location.LocationCallback
@@ -74,10 +75,10 @@ fun MapScreen(
 
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
-                Log.d("MapScreen:::", "retrieve location")
+                Logger.log("MapScreen:::", "retrieve location")
 
                 locationResult.lastLocation?.let { location ->
-                    Log.d("MapScreen:::", "lastLocation: $location")
+                    Logger.log("MapScreen:::", "lastLocation: $location")
 
                     val latLng = LatLng(location.latitude, location.longitude)
                     viewModel.updateUserLocation(latLng)
@@ -90,7 +91,7 @@ fun MapScreen(
     val homPosition = uiState.homeLocation
     val selectedPosition = uiState.selectedPosition
     val userLocation = uiState.userLocation
-    Log.d("MapScreen:::", "userLocation: $userLocation")
+    Logger.log("MapScreen:::", "userLocation: $userLocation")
 
     MapScreenContent(
         onSavePosition = { latLng ->

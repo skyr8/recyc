@@ -7,6 +7,7 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.recyc.domain.usecase.GetCurrentDayUseCase
 import com.example.recyc.domain.usecase.GetCurrentRecyclerDayUseCase
 import com.example.recyc.domain.usecase.PreferenceUseCase
+import com.example.recyc.domain.usecase.UpdateWidgetUseCase
 import com.example.recyc.presentation.widget.updateWidget
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -35,13 +36,16 @@ class GeofenceActionReceiver : BroadcastReceiver() {
     @Inject
     lateinit var getCurrentRecyclerDayUseCase: GetCurrentRecyclerDayUseCase
 
+    @Inject
+    lateinit var updateWidgetUseCase: UpdateWidgetUseCase
+
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == ACTION_CONFIRM_DAY) {
             val date = intent.getStringExtra(DATE) ?: return
             val notificationId = intent.getIntExtra(NOTIFICATION_ID, -1)
             CoroutineScope(Dispatchers.IO).launch {
                 preferenceUseCase.setDayConfirmation(date)
-                updateWidget(context)
+                updateWidgetUseCase()
             }
 
 
@@ -73,7 +77,7 @@ class GeofenceActionReceiver : BroadcastReceiver() {
 
     private suspend fun updateWidget(context: Context) {
         val currentModel = getCurrentRecyclerDayUseCase()
-        val model = currentModel?.copy(isDone = preferenceUseCase.isCurrentDayDone(currentDayUseCase()))
+        val model = currentModel?.copy(isDone = preferenceUseCase.isCurrentDayDone(currentDayUseCase()), isSkipped = preferenceUseCase.isDaySkipped(currentDayUseCase()))
         val recyclerJson = model?.let { com.google.gson.Gson().toJson(it) }
         recyclerJson?.let { updateWidget(it, context) }
     }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "347720484987",
+    "project_id": "testrecy-60994",
+    "storage_bucket": "testrecy-60994.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:347720484987:android:b9980668d390a493c8fade",
+        "android_client_info": {
+          "package_name": "com.example.recyc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2xP6enlfFnWfWDsrye_izDKIcyVq5jKw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
