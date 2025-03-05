@@ -11,6 +11,7 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.recyc.R
+import com.example.recyc.data.model.RecyclingType
 import com.example.recyc.domain.RecyclerRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -32,8 +33,10 @@ class RecyclerWorker @AssistedInject constructor(
         val today = LocalDate.now().dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()).uppercase()
         val todayRecycler = recyclerDays.find { it.day.name == today }
 
-        todayRecycler?.let {
-            showNotification(it.type.joinToString(", "))
+        todayRecycler?.let { todayRec ->
+            if(todayRec.type.any { it != RecyclingType.NONE }){
+                showNotification(todayRec.type.joinToString(", "))
+            }
         }
 
         return Result.success()
