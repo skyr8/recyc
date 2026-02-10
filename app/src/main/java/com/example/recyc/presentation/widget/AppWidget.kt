@@ -163,7 +163,7 @@ private fun SmallWidget(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(R.color.surface)
+            .background(R.color.background)
             .padding(16.dp).cornerRadius(AppWidget.radius),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalAlignment = Alignment.CenterVertically,
@@ -198,7 +198,7 @@ private fun MediumWidget(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(R.color.surface)
+            .background(R.color.background)
             .padding(start = paddingStart)
             .padding(vertical = 16.dp)
             .padding(end = 8.dp)
@@ -209,7 +209,7 @@ private fun MediumWidget(
             Column(
                 modifier = modifier
                     .fillMaxSize()
-                    .background(R.color.surface),
+                    .background(R.color.background),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -224,9 +224,9 @@ private fun MediumWidget(
                 text = recyclingDayModel?.type?.joinToString("-").orEmpty(),
                 maxLines = 1,
                 style = TextStyle(
-                    color = ColorProvider(R.color.text),
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                    color = ColorProvider(R.color.text_widget),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
                 ),
                 modifier = GlanceModifier
                     .defaultWeight()

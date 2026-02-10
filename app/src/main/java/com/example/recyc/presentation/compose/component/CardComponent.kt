@@ -10,6 +10,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,15 +34,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.recyc.data.model.CheckedState
 import com.example.recyc.data.model.DayEnum
 import com.example.recyc.data.model.RecyclingType
 import com.example.recyc.domain.mapper.toIcon
 import com.example.recyc.domain.model.RecyclingDayModel
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
@@ -48,8 +53,8 @@ fun RecyclingCard(
     recyclingDay: RecyclingDayModel,
     isCurrentDay: Boolean = false,
     onClick: (Int) -> Unit = {},
-    isConfirmed: Boolean = false,
-    isSkipped: Boolean = false
+    checkedState: CheckedState = CheckedState.UNCHECKED,
+    onConfirmClick: (CheckedState) -> Unit = {},
 ) {
     val cardColor =
         if (isCurrentDay) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant
@@ -119,33 +124,48 @@ fun RecyclingCard(
                 }
             }
             Column(horizontalAlignment = Alignment.End) {
-                AnimatedContent(targetState = isConfirmed || isSkipped) {
-                    if (isConfirmed || isSkipped) {
-                        val icon  = if (isConfirmed) Icons.Default.Check else Icons.Default.Close
-                        val color = if (isConfirmed) Color.Green else Color.Red
-                        Column(
-                            modifier = Modifier.height(38.dp),
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Box(
-                                modifier = Modifier.border(
-                                    1.dp,
-                                    color,
-                                    RoundedCornerShape(50)
-                                )
-                            ) {
-                                Icon(
-                                    modifier = Modifier.padding(1.dp),
-                                    imageVector = icon,
-                                    contentDescription = null,
-                                    tint = color
-                                )
-                            }
-                        }
-                    } else {
-                        Label(text = recyclingDay.hour)
+                if (isCurrentDay) {
+                    AnimatedContent(targetState = CheckedState.CONFIRM) {
+                        StateButton(checkedState, onClick = onConfirmClick)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun StateButton(checkedState: CheckedState, onClick: (CheckedState) -> Unit = {}){
+    val stateIcon: Pair<ImageVector?, Color> = when(checkedState){
+        CheckedState.CONFIRM -> Icons.Default.Check to Color.Green
+        CheckedState.SKIP -> Icons.Default.Close to Color.Red
+        CheckedState.UNCHECKED -> Icons.Default.Check to Color.Gray
+    }
+
+    Column(
+        modifier = Modifier.height(40.dp),
+        verticalArrangement = Arrangement.Center
+    ) {
+        val newSate = when(checkedState){
+            CheckedState.CONFIRM -> CheckedState.UNCHECKED
+            CheckedState.SKIP -> CheckedState.CONFIRM
+            CheckedState.UNCHECKED -> CheckedState.CONFIRM
+        }
+
+        Box(
+            modifier = Modifier.border(
+                1.5.dp,
+                stateIcon.second,
+                RoundedCornerShape(50)
+            ).clickable(onClick ={onClick(newSate)})
+        ) {
+            stateIcon.first?.let {
+                Icon(
+                    modifier = Modifier.padding(1.dp),
+                    imageVector = it,
+                    contentDescription = null,
+                    tint = if(checkedState == CheckedState.UNCHECKED) Color.Transparent else stateIcon.second
+                )
             }
         }
     }
@@ -172,7 +192,7 @@ private fun RecyclingCardCurrentDayPreview() {
         day = DayEnum.MONDAY,
         id = 0,
     )
-    RecyclingCard(recyclingDay = data, isCurrentDay = true, isConfirmed = true)
+    RecyclingCard(recyclingDay = data, isCurrentDay = true, checkedState = CheckedState.UNCHECKED)
 }
 
 @Preview
@@ -184,5 +204,29 @@ private fun RecyclingCardCurrentDayPreviewSkip() {
         day = DayEnum.MONDAY,
         id = 0,
     )
-    RecyclingCard(recyclingDay = data, isCurrentDay = true, isConfirmed = false, isSkipped = true)
+    RecyclingCard(recyclingDay = data, isCurrentDay = true, checkedState = CheckedState.CONFIRM)
+}
+
+@Preview
+@Composable
+private fun RecyclingCardCurrentDayUncheck() {
+    val data = RecyclingDayModel(
+        hour = "20 - 22",
+        type = listOf(RecyclingType.ORGANIC, RecyclingType.GLASS),
+        day = DayEnum.MONDAY,
+        id = 0,
+    )
+    RecyclingCard(recyclingDay = data, isCurrentDay = true, checkedState = CheckedState.SKIP)
+}
+
+@Preview
+@Composable
+private fun StateIconPreview(){
+    Column {
+        StateButton(checkedState = CheckedState.CONFIRM)
+        Margin(margin = 8)
+        StateButton(checkedState = CheckedState.SKIP)
+        Margin(margin = 8)
+        StateButton(checkedState = CheckedState.UNCHECKED)
+    }
 }

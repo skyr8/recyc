@@ -33,7 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.recyc.SharedViewModel
+import com.example.recyc.data.model.CheckedState
 import com.example.recyc.data.model.DayEnum
+import com.example.recyc.data.model.toCheckState
 import com.example.recyc.domain.mapper.toIcon
 import com.example.recyc.domain.model.RecyclingDayModel
 import com.example.recyc.presentation.compose.component.Label
@@ -79,7 +81,8 @@ fun HomeScreen(
         onItemClick = onItemClick,
         isCurrentDayConfirmed = isCurrentDayConfirmed,
         onSettingsClick = onSettingsClick,
-        isCurrentDaySkipped = isCurrentDaySkipped
+        isCurrentDaySkipped = isCurrentDaySkipped,
+        onConfirmClick = {viewModel?.setCurrentDayConfirmation(it)}
     )
 
 }
@@ -94,7 +97,8 @@ fun RecyclingScreenContent(
     onItemClick: (Int) -> Unit,
     isCurrentDayConfirmed: Boolean,
     isCurrentDaySkipped: Boolean = false,
-    onSettingsClick: () -> Unit = {}
+    onSettingsClick: () -> Unit = {},
+    onConfirmClick: (CheckedState) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -183,8 +187,8 @@ fun RecyclingScreenContent(
                                     recyclingDay = it,
                                     isCurrentDay = isCurrentDay,
                                     onClick = onItemClick,
-                                    isConfirmed = isCurrentDay && isCurrentDayConfirmed,
-                                    isSkipped = isCurrentDay && isCurrentDaySkipped
+                                    checkedState = toCheckState(isCurrentDayConfirmed,isCurrentDaySkipped),
+                                    onConfirmClick = onConfirmClick
                                 )
                                 Margin(margin = 8)
                             }

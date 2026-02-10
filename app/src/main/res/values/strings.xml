@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EcoSort</string>
+    <string name="app_name">MunnizzApp</string>
     <string name="notification_channel_name">recyc_channel</string>
     <string name="notification_channel_description">notification_channel_description</string>
     <string name="maps_api_key">AIzaSyAzMyBaoRPrXkN0KTKiYsHFCeMCGp5atzc</string>
