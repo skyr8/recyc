@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -194,7 +195,7 @@ fun RecyclingCard(
                                 Image(
                                     painter = painterResource(icon),
                                     contentDescription = null,
-                                    modifier = Modifier.size(40.dp),
+                                    modifier = Modifier.size(40.dp).alpha(0.9f),
                                     colorFilter = ColorFilter.tint(iconColor)
                                 )
                             }
@@ -210,14 +211,14 @@ fun RecyclingCard(
                                 .padding(1.dp)
                                 .height(40.dp)
                                 .width(28.dp)
-                                .alpha(0.3f)
+                                .alpha(if(checkedState == CheckedState.CONFIRM) 0.7f else 1f)
                                 .testTag("trash_icon")
                                 .onGloballyPositioned { coords ->
                                     trashX = coords.localToRoot(Offset.Zero).x
                                 },
                             imageVector = ImageVector.vectorResource(id = R.drawable.trash),
                             contentDescription = null,
-                            tint = Color.LightGray
+                            tint = if(checkedState == CheckedState.CONFIRM) MaterialTheme.colorScheme.secondary else Color.LightGray
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                     }

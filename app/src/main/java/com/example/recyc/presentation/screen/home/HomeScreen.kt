@@ -1,13 +1,17 @@
 package com.example.recyc.presentation.screen.home
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,19 +23,26 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.recyc.R
 import com.example.recyc.SharedViewModel
 import com.example.recyc.data.model.CheckedState
 import com.example.recyc.data.model.DayEnum
@@ -82,12 +93,12 @@ fun HomeScreen(
         isCurrentDayConfirmed = isCurrentDayConfirmed,
         onSettingsClick = onSettingsClick,
         isCurrentDaySkipped = isCurrentDaySkipped,
-        onConfirmClick = {viewModel?.setCurrentDayConfirmation(it)}
+        onConfirmClick = { viewModel?.setCurrentDayConfirmation(it) }
     )
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun RecyclingScreenContent(
     days: List<RecyclingDayModel>,
@@ -134,50 +145,65 @@ fun RecyclingScreenContent(
             } else {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     currentModel?.let {
-                        Column(
+                        Box(
                             modifier = Modifier
-                                .padding(16.dp)
+                                .fillMaxWidth()
+                                .height(180.dp),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Row {
-                                Label(
-                                    modifier = Modifier.weight(1f),
-                                    text = "TODAY",
-                                    style = TextStyle(fontSize = 18.sp),
-                                    color = MaterialTheme.colorScheme.secondary
+                            if (isCurrentDayConfirmed) {
+                                Image(
+                                    painter = painterResource(R.drawable.stamp),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(180.dp)
                                 )
-                                Label(
-                                    text = currentModel.hour,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = TextStyle(fontSize = 18.sp)
+                                Text(
+                                    "Done",
+                                    style = TextStyle(
+                                        fontSize = 42.sp,
+                                        fontFamily = FontFamily(
+                                            Font(R.font.stamp)
+                                        )
+                                    ),
+                                    color = Color.Green,
+                                    modifier = Modifier
+                                        .rotate(-16f)
+                                        .alpha(0.7f)
                                 )
                             }
-                            Margin(24)
-                            Row {
+                            Column(
+                                modifier = Modifier
+                                    .padding(16.dp)
+                            ) {
+                                Row {
+                                    Label(
+                                        modifier = Modifier.weight(1f),
+                                        text = "TODAY",
+                                        style = TextStyle(fontSize = 18.sp),
+                                        color = MaterialTheme.colorScheme.secondary
+                                    )
+                                }
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Label(
-                                            text = currentModel.type.joinToString("•"),
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            style = TextStyle(fontSize = 20.sp),
-                                            modifier = Modifier.weight(1f)
+                                    Label(
+                                        text = currentModel.type.joinToString("•"),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = TextStyle(fontSize = 20.sp),
+                                    )
+                                    Spacer(Modifier.size(8.dp))
+                                    currentModel.type.forEach {
+                                        Image(
+                                            painter = painterResource(it.toIcon()),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(42.dp),
+                                            colorFilter = ColorFilter
+                                                .tint(MaterialTheme.colorScheme.onPrimaryContainer)
                                         )
-                                        currentModel.type.forEach {
-                                            Image(
-                                                painter = painterResource(it.toIcon()),
-                                                contentDescription = null,
-                                                modifier = Modifier.size(42.dp),
-                                                colorFilter = ColorFilter
-                                                    .tint(MaterialTheme.colorScheme.onPrimaryContainer)
-                                            )
-                                            Margin(margin = 8)
-                                        }
                                     }
                                 }
-
                             }
                         }
                     }
-                    Margin(16)
+
                     LazyColumn(
                         modifier = Modifier.padding(16.dp),
                         content = {
@@ -187,7 +213,10 @@ fun RecyclingScreenContent(
                                     recyclingDay = it,
                                     isCurrentDay = isCurrentDay,
                                     onClick = onItemClick,
-                                    checkedState = toCheckState(isCurrentDayConfirmed,isCurrentDaySkipped),
+                                    checkedState = toCheckState(
+                                        isCurrentDayConfirmed,
+                                        isCurrentDaySkipped
+                                    ),
                                     onConfirmClick = onConfirmClick
                                 )
                                 Margin(margin = 8)
