@@ -154,7 +154,7 @@ fun RecyclingScreenContent(
                             if (isCurrentDayConfirmed) {
                                 Image(
                                     painter = painterResource(R.drawable.stamp),
-                                    contentDescription = null,
+                                    contentDescription = "stamp",
                                     modifier = Modifier.size(180.dp)
                                 )
                                 Text(

@@ -114,4 +114,5 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     implementation 'com.google.firebase:firebase-firestore:25.1.1'
 
+    implementation "com.airbnb.android:lottie-compose:6.0.0"
 }

@@ -9,6 +9,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,6 +57,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.recyc.R
@@ -94,6 +97,7 @@ fun RecyclingCard(
     val scope = rememberCoroutineScope()
     val swipeOffsetX = remember { androidx.compose.animation.core.Animatable(0f) }
     var isDragging by remember { mutableStateOf(false) }
+    var isPlaying by remember { mutableStateOf(false) }
 
     var iconRowX by remember { mutableStateOf(Float.NaN) }
     var trashX by remember { mutableStateOf(Float.NaN) }
@@ -103,6 +107,13 @@ fun RecyclingCard(
         if (!iconRowX.isNaN() && !trashX.isNaN()) {
             maxDragPx = (trashX - iconRowX).coerceAtLeast(0f)
             swipeOffsetX.snapTo(swipeOffsetX.value.coerceIn(0f, maxDragPx))
+        }
+    }
+
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            delay(1000) // Assumendo durata animazione ~1s, regola se necessario
+            isPlaying = false
         }
     }
 
@@ -124,9 +135,11 @@ fun RecyclingCard(
         onClick = cardOnClick
     ) {
         Row(
-            modifier = Modifier.padding(16.dp)
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(verticalArrangement = Arrangement.Center) {
+                Spacer(modifier = Modifier.height(12.dp))
                 Label(text = recyclingDay.day.name)
                 AnimatedContent(targetState = recyclingDay.type, transitionSpec = {
                     slideInHorizontally(initialOffsetX = { -it }) + fadeIn(
@@ -147,9 +160,10 @@ fun RecyclingCard(
                         color = typeColor
                     )
                 }
+                Spacer(modifier = Modifier.height(12.dp))
             }
             Margin(8)
-            Row(modifier = Modifier.weight(1f)) {
+            Row(modifier = Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
                 OffsetPxLayout(
                     offsetXPx = swipeOffsetX.value,
                     modifier = Modifier
@@ -171,6 +185,7 @@ fun RecyclingCard(
                                             animationSpec = tween(120)
                                         )
                                         onConfirmClick(CheckedState.CONFIRM)
+                                        isPlaying = true
                                         delay(200)
                                         swipeOffsetX.animateTo(0f, animationSpec = tween(200))
                                     } else {
@@ -203,22 +218,22 @@ fun RecyclingCard(
                     }
                 }
             }
-            Column(horizontalAlignment = Alignment.End) {
+            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.Center) {
                 Row {
                     if (isCurrentDay) {
-                        Icon(
+                        LottieIcon(
                             modifier = Modifier
-                                .padding(1.dp)
                                 .height(40.dp)
-                                .width(28.dp)
-                                .alpha(if(checkedState == CheckedState.CONFIRM) 0.7f else 1f)
+                                .width(60.dp)
+                                .alpha(if(checkedState == CheckedState.CONFIRM) 0.7f else 0.7f)
                                 .testTag("trash_icon")
                                 .onGloballyPositioned { coords ->
                                     trashX = coords.localToRoot(Offset.Zero).x
                                 },
-                            imageVector = ImageVector.vectorResource(id = R.drawable.trash),
-                            contentDescription = null,
-                            tint = if(checkedState == CheckedState.CONFIRM) MaterialTheme.colorScheme.secondary else Color.LightGray
+                            animationRes = R.raw.binn,
+                            iterations = 1,
+                            tint =  MaterialTheme.colorScheme.secondary,
+                            isPlaying = isPlaying
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                     }
@@ -229,6 +244,7 @@ fun RecyclingCard(
                     }
                 }
             }
+            Spacer(modifier = Modifier.width(12.dp))
         }
     }
 }
