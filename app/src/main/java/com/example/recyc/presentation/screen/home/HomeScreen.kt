@@ -1,7 +1,8 @@
 package com.example.recyc.presentation.screen.home
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,10 +28,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
@@ -55,6 +58,8 @@ import com.example.recyc.presentation.compose.component.RecyclingCard
 import com.example.recyc.presentation.theme.AppTheme
 import com.example.recyc.presentation.widget.updateWidget
 import com.google.gson.Gson
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
@@ -111,6 +116,19 @@ fun RecyclingScreenContent(
     onSettingsClick: () -> Unit = {},
     onConfirmClick: (CheckedState) -> Unit = {}
 ) {
+    val scaleAnimatable = remember { Animatable(5.55f) }
+
+    LaunchedEffect(isCurrentDayConfirmed) {
+        if (isCurrentDayConfirmed) {
+            coroutineScope {
+                launch {
+                    scaleAnimatable.snapTo(5.55f)
+                    scaleAnimatable.animateTo(1f, animationSpec = tween(durationMillis = 180))
+                }
+            }
+        }
+    }
+
     Scaffold(
         topBar = {
             Row(
@@ -155,7 +173,9 @@ fun RecyclingScreenContent(
                                 Image(
                                     painter = painterResource(R.drawable.stamp),
                                     contentDescription = "stamp",
-                                    modifier = Modifier.size(180.dp)
+                                    modifier = Modifier
+                                        .size(180.dp)
+                                        .scale(scaleAnimatable.value)
                                 )
                                 Text(
                                     "Done",
@@ -169,6 +189,7 @@ fun RecyclingScreenContent(
                                     modifier = Modifier
                                         .rotate(-16f)
                                         .alpha(0.7f)
+                                        .scale(scaleAnimatable.value)
                                 )
                             }
                             Column(
@@ -190,14 +211,16 @@ fun RecyclingScreenContent(
                                         style = TextStyle(fontSize = 20.sp),
                                     )
                                     Spacer(Modifier.size(8.dp))
-                                    currentModel.type.forEach {
-                                        Image(
-                                            painter = painterResource(it.toIcon()),
-                                            contentDescription = null,
-                                            modifier = Modifier.size(42.dp),
-                                            colorFilter = ColorFilter
-                                                .tint(MaterialTheme.colorScheme.onPrimaryContainer)
-                                        )
+                                    Row {
+                                        currentModel.type.forEach {
+                                            Image(
+                                                painter = painterResource(it.toIcon()),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(42.dp),
+                                                colorFilter = ColorFilter
+                                                    .tint(MaterialTheme.colorScheme.onPrimaryContainer)
+                                            )
+                                        }
                                     }
                                 }
                             }
